@@ -22,8 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label>Пароль
             <input type="password" name="password" required>
         </label>
-        <button class="btn">Войти</button>
-        <a href="index.php?page=register" class="btn secondary">Регистрация</a>
+        <div class="auth-actions">
+            <button class="btn">Войти</button>
+            <a href="index.php?page=register" class="btn secondary">Регистрация</a>
+        </div>
     </form>
 </div>
 <?php require_once __DIR__ . '/../footer.php'; ?>

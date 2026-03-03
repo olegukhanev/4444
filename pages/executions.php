@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../auth.php';
 require_user_role();
 
-$naz = db()->query('SELECT n.NaznachenieID, h.nomer_istorii, p.imya proc_name, p.bazovaya_stoimost FROM Naznacheniya n JOIN IstoriiBolezni h ON h.IstoriyaID=n.IstoriyaID JOIN SprProcedur p ON p.ProceduraID=n.ProceduraID ORDER BY n.NaznachenieID DESC')->fetchAll(PDO::FETCH_ASSOC);
+$naz = db()->query('SELECT n.NaznachenieID, h.nomer_istorii, CONCAT(pa.last_name, " ", pa.first_name, " ", COALESCE(pa.middle_name,"")) fio, p.kod_procedury, p.imya proc_name, p.bazovaya_stoimost FROM Naznacheniya n JOIN IstoriiBolezni h ON h.IstoriyaID=n.IstoriyaID JOIN Pacienty pa ON pa.PacientID=h.PacientID JOIN SprProcedur p ON p.ProceduraID=n.ProceduraID ORDER BY n.NaznachenieID DESC')->fetchAll(PDO::FETCH_ASSOC);
 $sotr = db()->query('SELECT SotrudnikID, CONCAT(last_name, " ", first_name, " ", COALESCE(middle_name, "")) fio FROM Sotrudniki WHERE active="Yes" ORDER BY last_name, first_name')->fetchAll(PDO::FETCH_ASSOC);
 
 $costMap = [];
@@ -34,7 +34,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     }
 }
 $nmap=[];$smap=[];
-foreach($naz as $n){$nmap[$n['NaznachenieID']]=$n['nomer_istorii'].' / '.$n['proc_name'];}
+foreach($naz as $n){$nmap[$n['NaznachenieID']]=$n['nomer_istorii'].' / '.trim($n['fio']).' / ['.$n['kod_procedury'].'] '.$n['proc_name'];}
 foreach($sotr as $s){$smap[$s['SotrudnikID']]=trim($s['fio']);}
 $rows=db()->query('SELECT * FROM Vypolneniya ORDER BY VypolnenieID DESC')->fetchAll(PDO::FETCH_ASSOC);
 require_once __DIR__ . '/../layout.php';
@@ -51,7 +51,7 @@ require_once __DIR__ . '/../layout.php';
         <input type="hidden" name="action" value="add">
         <label>Назначение
             <select name="NaznachenieID" id="addNaznachenie" required>
-                <?php foreach($naz as $n):?><option value="<?= $n['NaznachenieID'] ?>" data-cost="<?= h($n['bazovaya_stoimost']) ?>">#<?= $n['NaznachenieID'] ?> — <?= h($n['nomer_istorii']) ?> / <?= h($n['proc_name']) ?></option><?php endforeach;?>
+                <?php foreach($naz as $n):?><option value="<?= $n['NaznachenieID'] ?>" data-cost="<?= h($n['bazovaya_stoimost']) ?>">Назначение ID <?= $n['NaznachenieID'] ?> — История <?= h($n['nomer_istorii']) ?> / <?= h(trim($n['fio'])) ?> / [<?= h($n['kod_procedury']) ?>] <?= h($n['proc_name']) ?></option><?php endforeach;?>
             </select>
         </label>
         <label>Исполнитель
@@ -74,7 +74,7 @@ require_once __DIR__ . '/../layout.php';
     <div class="table-wrap"><table><tr><th>ID</th><th>Назначение</th><th>Исполнитель</th><th>Дата</th><th>Сумма</th><th>Оплата</th><th>Действия</th></tr>
     <?php foreach($rows as $r):?><tr><td><?= $r['VypolnenieID'] ?></td><td><?= h($nmap[$r['NaznachenieID']] ?? ('#'.$r['NaznachenieID'])) ?></td><td><?= h($smap[$r['vypolnil_SotrudnikID']] ?? $r['vypolnil_SotrudnikID']) ?></td><td><?= h($r['data_vypolneniya']) ?></td><td><?= h($r['summa']) ?></td><td><?= h($r['status_oplaty']) ?></td><td>
     <form method="post" class="form-grid"><input type="hidden" name="action" value="edit"><input type="hidden" name="id" value="<?= $r['VypolnenieID'] ?>">
-    <label>Назначение<select name="NaznachenieID" class="editNaznachenie"><?php foreach($naz as $n):?><option value="<?= $n['NaznachenieID'] ?>" data-cost="<?= h($n['bazovaya_stoimost']) ?>" <?= $n['NaznachenieID']==$r['NaznachenieID']?'selected':'' ?>>#<?= $n['NaznachenieID'] ?> — <?= h($n['nomer_istorii']) ?> / <?= h($n['proc_name']) ?></option><?php endforeach;?></select></label>
+    <label>Назначение<select name="NaznachenieID" class="editNaznachenie"><?php foreach($naz as $n):?><option value="<?= $n['NaznachenieID'] ?>" data-cost="<?= h($n['bazovaya_stoimost']) ?>" <?= $n['NaznachenieID']==$r['NaznachenieID']?'selected':'' ?>>Назначение ID <?= $n['NaznachenieID'] ?> — История <?= h($n['nomer_istorii']) ?> / <?= h(trim($n['fio'])) ?> / [<?= h($n['kod_procedury']) ?>] <?= h($n['proc_name']) ?></option><?php endforeach;?></select></label>
     <label>Исполнитель<select name="vypolnil_SotrudnikID"><?php foreach($sotr as $s):?><option value="<?= $s['SotrudnikID'] ?>" <?= (string)$s['SotrudnikID']===(string)$r['vypolnil_SotrudnikID']?'selected':'' ?>><?= h(trim($s['fio'])) ?></option><?php endforeach;?></select></label>
     <label>Дата<input type="date" name="data_vypolneniya" value="<?= h($r['data_vypolneniya']) ?>"></label>
     <label>Результат<textarea name="rezultat"><?= h($r['rezultat']) ?></textarea></label>

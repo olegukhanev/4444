@@ -42,16 +42,16 @@ require_once __DIR__ . '/../layout.php';
 </div>
 <div class="card"><h3>Добавить процедуру</h3>
 <form method="post" class="form-grid"><input type="hidden" name="action" value="add">
-<label>Код<input name="kod_procedury" required></label>
+<label>Код процедуры<input name="kod_procedury" required placeholder="PR-001"></label>
 <label>Название<input name="imya" required></label>
 <label>Тип<select name="tip_procedury"><option value="Манипуляция">Манипуляция</option><option value="Процедура">Процедура</option><option value="Диагностическая">Диагностическая</option></select></label>
 <label>Базовая стоимость<input type="number" step="0.01" name="bazovaya_stoimost"></label>
-<label>Активность<select name="active"><option value="Yes">Yes</option><option value="No">No</option></select></label>
+<label>Доступна для назначения<select name="active"><option value="Yes">Да</option><option value="No">Нет</option></select></label>
 <button class="btn">Добавить</button></form></div>
-<div class="card"><h3>Список процедур</h3><div class="table-wrap"><table><tr><th>ID</th><th>Код</th><th>Название</th><th>Тип</th><th>Цена</th><th>Active</th><th>Действия</th></tr>
-<?php foreach($rows as $r):?><tr><td><?= $r['ProceduraID'] ?></td><td><?= h($r['kod_procedury']) ?></td><td><?= h($r['imya']) ?></td><td><?= h($r['tip_procedury']) ?></td><td><?= h($r['bazovaya_stoimost']) ?></td><td><?= h($r['active']) ?></td><td>
+<div class="card"><h3>Список процедур</h3><div class="table-wrap"><table><tr><th>ID</th><th>Код</th><th>Название</th><th>Тип</th><th>Цена</th><th>Доступна</th><th>Действия</th></tr>
+<?php foreach($rows as $r):?><tr><td><?= $r['ProceduraID'] ?></td><td><?= h($r['kod_procedury']) ?></td><td><?= h($r['imya']) ?></td><td><?= h($r['tip_procedury']) ?></td><td><?= h($r['bazovaya_stoimost']) ?></td><td><?= h(yes_no_label($r['active'])) ?></td><td>
 <form method="post" class="form-grid"><input type="hidden" name="action" value="edit"><input type="hidden" name="id" value="<?= $r['ProceduraID'] ?>">
-<label>Код<input name="kod_procedury" value="<?= h($r['kod_procedury']) ?>"></label><label>Название<input name="imya" value="<?= h($r['imya']) ?>"></label><label>Тип<input name="tip_procedury" value="<?= h($r['tip_procedury']) ?>"></label><label>Цена<input type="number" step="0.01" name="bazovaya_stoimost" value="<?= h($r['bazovaya_stoimost']) ?>"></label><label>Active<select name="active"><option value="Yes" <?= $r['active']==='Yes'?'selected':'' ?>>Yes</option><option value="No" <?= $r['active']==='No'?'selected':'' ?>>No</option></select></label>
+<label>Код<input name="kod_procedury" value="<?= h($r['kod_procedury']) ?>" placeholder="PR-001"></label><label>Название<input name="imya" value="<?= h($r['imya']) ?>"></label><label>Тип<input name="tip_procedury" value="<?= h($r['tip_procedury']) ?>"></label><label>Цена<input type="number" step="0.01" name="bazovaya_stoimost" value="<?= h($r['bazovaya_stoimost']) ?>"></label><label>Доступна для назначения<select name="active"><option value="Yes" <?= $r['active']==='Yes'?'selected':'' ?>>Да</option><option value="No" <?= $r['active']==='No'?'selected':'' ?>>Нет</option></select></label>
 <button class="btn">Сохранить</button></form>
 <form method="post"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $r['ProceduraID'] ?>"><button class="btn danger">Удалить</button></form></td></tr><?php endforeach;?></table></div></div>
 <?php require_once __DIR__ . '/../footer.php'; ?>

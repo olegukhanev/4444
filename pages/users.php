@@ -43,6 +43,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_flash('success', 'Пользователь деактивирован.');
         redirect('index.php?page=users');
     }
+
+    if ($action === 'delete') {
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id === (int)(user()['AuthUserID'] ?? 0)) {
+            set_flash('error', 'Нельзя удалить текущую учетную запись администратора.');
+        } else {
+            db()->prepare('DELETE FROM AuthUsers WHERE AuthUserID=?')->execute([$id]);
+            set_flash('success', 'Пользователь удален.');
+        }
+        redirect('index.php?page=users');
+    }
 }
 
 $q = trim($_GET['q'] ?? '');
@@ -99,14 +110,14 @@ require_once __DIR__ . '/../layout.php';
     <h3>Список пользователей</h3>
     <div class="table-wrap">
         <table>
-            <tr><th>ID</th><th>Логин</th><th>Имя</th><th>Роль</th><th>Active</th><th>Управление</th></tr>
+            <tr><th>ID</th><th>Логин</th><th>Имя</th><th>Роль</th><th>Доступ</th><th>Управление</th></tr>
             <?php foreach ($rows as $r): ?>
                 <tr>
                     <td><?= (int)$r['AuthUserID'] ?></td>
                     <td><?= h($r['auth_login']) ?></td>
                     <td><?= h($r['display_name']) ?></td>
                     <td><?= h($r['role_name']) ?></td>
-                    <td><?= h($r['active']) ?></td>
+                    <td><?= h(yes_no_label($r['active'])) ?></td>
                     <td>
                         <form method="post" class="form-grid">
                             <input type="hidden" name="action" value="edit">
@@ -120,10 +131,10 @@ require_once __DIR__ . '/../layout.php';
                                     <option value="admin" <?= $r['role_name'] === 'admin' ? 'selected' : '' ?>>admin</option>
                                 </select>
                             </label>
-                            <label>Active
+                            <label>Доступ в систему
                                 <select name="active">
-                                    <option value="Yes" <?= $r['active'] === 'Yes' ? 'selected' : '' ?>>Yes</option>
-                                    <option value="No" <?= $r['active'] === 'No' ? 'selected' : '' ?>>No</option>
+                                    <option value="Yes" <?= $r['active'] === 'Yes' ? 'selected' : '' ?>>Да</option>
+                                    <option value="No" <?= $r['active'] === 'No' ? 'selected' : '' ?>>Нет</option>
                                 </select>
                             </label>
                             <button class="btn">Сохранить</button>
@@ -132,6 +143,11 @@ require_once __DIR__ . '/../layout.php';
                             <input type="hidden" name="action" value="deactivate">
                             <input type="hidden" name="id" value="<?= (int)$r['AuthUserID'] ?>">
                             <button class="btn danger" <?= $r['active'] === 'No' ? 'disabled' : '' ?>>Деактивировать</button>
+                        </form>
+                        <form method="post" class="form-stack">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" value="<?= (int)$r['AuthUserID'] ?>">
+                            <button class="btn danger" onclick="return confirm('Удалить учетную запись полностью?')" <?= (int)$r['AuthUserID'] === (int)(user()['AuthUserID'] ?? 0) ? 'disabled' : '' ?>>Удалить аккаунт</button>
                         </form>
                     </td>
                 </tr>

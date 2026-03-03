@@ -74,7 +74,7 @@ require_once __DIR__ . '/../layout.php';
         <label>Пациент
             <select name="PacientID" required><?php foreach($patients as $p):?><option value="<?= $p['PacientID'] ?>"><?= h(trim($p['fio'])) ?></option><?php endforeach;?></select>
         </label>
-        <label>Номер истории<input name="nomer_istorii" required></label>
+        <label>Номер истории<input name="nomer_istorii" required placeholder="ИБ-2026-0001"></label>
         <label>Дата открытия<input type="date" name="data_otkrytiya" required></label>
         <label>Дата закрытия<input type="date" name="data_zakrytiya"></label>
         <label>Статус
@@ -91,7 +91,7 @@ require_once __DIR__ . '/../layout.php';
     <?php foreach($rows as $r):?><tr><td><?= $r['IstoriyaID'] ?></td><td><?= h($pmap[$r['PacientID']] ?? '') ?></td><td><?= h($r['nomer_istorii']) ?></td><td><?= h($r['data_otkrytiya']) ?> — <?= h($r['data_zakrytiya']) ?></td><td><?= h($r['ist_status']) ?></td><td>
     <form method="post" class="form-grid"><input type="hidden" name="action" value="edit"><input type="hidden" name="id" value="<?= $r['IstoriyaID'] ?>">
     <label>Пациент<select name="PacientID"><?php foreach($patients as $p):?><option value="<?= $p['PacientID'] ?>" <?= $p['PacientID']==$r['PacientID']?'selected':'' ?>><?= h(trim($p['fio'])) ?></option><?php endforeach;?></select></label>
-    <label>Номер<input name="nomer_istorii" value="<?= h($r['nomer_istorii']) ?>"></label>
+    <label>Номер<input name="nomer_istorii" value="<?= h($r['nomer_istorii']) ?>" placeholder="ИБ-2026-0001"></label>
     <label>Дата открытия<input type="date" name="data_otkrytiya" value="<?= h($r['data_otkrytiya']) ?>"></label>
     <label>Дата закрытия<input type="date" name="data_zakrytiya" value="<?= h($r['data_zakrytiya']) ?>"></label>
     <label>Статус<input name="ist_status" value="<?= h($r['ist_status']) ?>"></label>

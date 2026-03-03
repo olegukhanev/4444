@@ -35,15 +35,21 @@ $currentPage = $_GET['page'] ?? 'dashboard';
         <a class="tab <?= $currentPage === 'users' ? 'active' : '' ?>" href="index.php?page=users">Управление пользователями</a>
     <?php else: ?>
         <a class="tab <?= $currentPage === 'dashboard' ? 'active' : '' ?>" href="index.php?page=dashboard">Главная</a>
-        <a class="tab <?= $currentPage === 'patients' ? 'active' : '' ?>" href="index.php?page=patients">Пациенты</a>
-        <a class="tab <?= $currentPage === 'departments' ? 'active' : '' ?>" href="index.php?page=departments">Отделения</a>
-        <a class="tab <?= $currentPage === 'staff' ? 'active' : '' ?>" href="index.php?page=staff">Сотрудники</a>
-        <a class="tab <?= $currentPage === 'histories' ? 'active' : '' ?>" href="index.php?page=histories">Истории болезни</a>
-        <a class="tab <?= $currentPage === 'diagnoses' ? 'active' : '' ?>" href="index.php?page=diagnoses">Диагнозы</a>
-        <a class="tab <?= $currentPage === 'procedures' ? 'active' : '' ?>" href="index.php?page=procedures">Процедуры</a>
-        <a class="tab <?= $currentPage === 'appointments' ? 'active' : '' ?>" href="index.php?page=appointments">Назначения</a>
-        <a class="tab <?= $currentPage === 'executions' ? 'active' : '' ?>" href="index.php?page=executions">Выполнения</a>
-        <a class="tab <?= $currentPage === 'reports' ? 'active' : '' ?>" href="index.php?page=reports">Отчёты</a>
+        <div class="tab-group">
+            <span class="tab-group-title">Справочники</span>
+            <a class="tab <?= $currentPage === 'patients' ? 'active' : '' ?>" href="index.php?page=patients">Пациенты</a>
+            <a class="tab <?= $currentPage === 'departments' ? 'active' : '' ?>" href="index.php?page=departments">Отделения</a>
+            <a class="tab <?= $currentPage === 'staff' ? 'active' : '' ?>" href="index.php?page=staff">Сотрудники</a>
+            <a class="tab <?= $currentPage === 'procedures' ? 'active' : '' ?>" href="index.php?page=procedures">Процедуры</a>
+        </div>
+        <div class="tab-group">
+            <span class="tab-group-title">Работа с пациентом</span>
+            <a class="tab <?= $currentPage === 'histories' ? 'active' : '' ?>" href="index.php?page=histories">Истории болезни</a>
+            <a class="tab <?= $currentPage === 'diagnoses' ? 'active' : '' ?>" href="index.php?page=diagnoses">Диагнозы</a>
+            <a class="tab <?= $currentPage === 'appointments' ? 'active' : '' ?>" href="index.php?page=appointments">Назначения</a>
+            <a class="tab <?= $currentPage === 'executions' ? 'active' : '' ?>" href="index.php?page=executions">Выполнения</a>
+            <a class="tab <?= $currentPage === 'reports' ? 'active' : '' ?>" href="index.php?page=reports">Отчёты</a>
+        </div>
     <?php endif; ?>
 </nav>
 <?php endif; ?>
