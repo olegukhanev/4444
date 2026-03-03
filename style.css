@@ -20,8 +20,9 @@ body{font-family:Arial,sans-serif;background:var(--bg);margin:0;color:var(--text
 .user-box{text-align:right;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .wrap{padding:18px;max-width:1440px;margin:0 auto}
 .tabs{display:flex;gap:8px;padding:10px 16px;background:#e9f1f8;flex-wrap:wrap;border-bottom:1px solid var(--border)}
-.tab-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px;border:1px solid #cde0ef;border-radius:10px;background:#f8fbff}
-.tab-group-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding:0 6px}
+.tabs-section{display:flex;flex-direction:column;gap:6px;padding:6px 8px;border:1px solid #cde0ef;border-radius:10px;background:#f8fbff}
+.tabs-section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding-left:2px}
+.tab-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tab{padding:9px 13px;background:#fff;border-radius:10px;text-decoration:none;color:var(--primary);border:1px solid #bcd4e6;font-weight:600}
 .tab.active{background:var(--primary);color:#fff}
 .card{background:var(--card);padding:16px;border-radius:14px;margin:14px 0;box-shadow:0 3px 10px rgba(0,0,0,.07);border:1px solid #eef3f8}

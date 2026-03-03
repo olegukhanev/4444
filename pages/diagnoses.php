@@ -74,7 +74,7 @@ require_once __DIR__ . '/../layout.php';
             </label>
             <label>Код МКБ (подставляется автоматически)<input id="diagMkb" readonly></label>
             <label>Дата постановки<input type="date" name="data_postanovki" required></label>
-            <label>Основной
+            <label>Основной диагноз
                 <select name="is_osnovnoy"><option value="Yes">Да</option><option value="No">Нет</option></select>
             </label>
             <label>Примечание<textarea name="primechanie"></textarea></label>
@@ -89,7 +89,7 @@ require_once __DIR__ . '/../layout.php';
 </table></div></div>
 
 <div class="card"><h3>Список привязок диагнозов</h3>
-<div class="table-wrap"><table><tr><th>ID</th><th>История</th><th>Диагноз</th><th>Дата</th><th>Основной</th><th>Действие</th></tr><?php foreach($bind as $b):?><tr><td><?= $b['IstDiagnozID'] ?></td><td><?= h($b['nomer_istorii']) ?></td><td><?= h($b['mkb_code'].' '.$b['imya']) ?></td><td><?= h($b['data_postanovki']) ?></td><td><?= h(yes_no_label($b['is_osnovnoy'])) ?></td><td><form method="post"><input type="hidden" name="action" value="del_bind"><input type="hidden" name="id" value="<?= $b['IstDiagnozID'] ?>"><button class="btn danger">Удалить</button></form></td></tr><?php endforeach;?></table></div></div>
+<div class="table-wrap"><table><tr><th>ID</th><th>История</th><th>Диагноз</th><th>Дата</th><th>Основной диагноз</th><th>Действие</th></tr><?php foreach($bind as $b):?><tr><td><?= $b['IstDiagnozID'] ?></td><td><?= h($b['nomer_istorii']) ?></td><td><?= h($b['mkb_code'].' '.$b['imya']) ?></td><td><?= h($b['data_postanovki']) ?></td><td><?= h(yes_no_label($b['is_osnovnoy'])) ?></td><td><form method="post"><input type="hidden" name="action" value="del_bind"><input type="hidden" name="id" value="<?= $b['IstDiagnozID'] ?>"><button class="btn danger">Удалить</button></form></td></tr><?php endforeach;?></table></div></div>
 <script>
 (function () {
     const select = document.getElementById('diagSelect');
