@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../auth.php';
 require_user_role();
 
+db()->exec("UPDATE Vypolneniya SET status_oplaty='Оплачено' WHERE status_oplaty IS NULL OR status_oplaty <> 'Оплачено'");
+
 $naz = db()->query('SELECT n.NaznachenieID, h.nomer_istorii, CONCAT(pa.last_name, " ", pa.first_name, " ", COALESCE(pa.middle_name,"")) fio, p.kod_procedury, p.imya proc_name, p.bazovaya_stoimost FROM Naznacheniya n JOIN IstoriiBolezni h ON h.IstoriyaID=n.IstoriyaID JOIN Pacienty pa ON pa.PacientID=h.PacientID JOIN SprProcedur p ON p.ProceduraID=n.ProceduraID ORDER BY n.NaznachenieID DESC')->fetchAll(PDO::FETCH_ASSOC);
 $sotr = db()->query('SELECT SotrudnikID, CONCAT(last_name, " ", first_name, " ", COALESCE(middle_name, "")) fio FROM Sotrudniki WHERE active="Yes" ORDER BY last_name, first_name')->fetchAll(PDO::FETCH_ASSOC);
 
@@ -18,14 +20,14 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $nazId = (int)$_POST['NaznachenieID'];
         $sum = execution_sum($nazId, $costMap);
         db()->prepare('INSERT INTO Vypolneniya(NaznachenieID,vypolnil_SotrudnikID,data_vypolneniya,rezultat,oslozhneniya,summa,status_oplaty) VALUES(?,?,?,?,?,?,?)')
-            ->execute([$nazId,(int)$_POST['vypolnil_SotrudnikID'],$_POST['data_vypolneniya'],trim($_POST['rezultat']),trim($_POST['oslozhneniya']),$sum,trim($_POST['status_oplaty'])]);
+            ->execute([$nazId,(int)$_POST['vypolnil_SotrudnikID'],$_POST['data_vypolneniya'],trim($_POST['rezultat']),trim($_POST['oslozhneniya']),$sum,'Оплачено']);
         set_flash('success','Выполнение добавлено. Сумма подставлена из базовой стоимости процедуры.');redirect('index.php?page=executions');
     }
     if($a==='edit'){
         $nazId = (int)$_POST['NaznachenieID'];
         $sum = execution_sum($nazId, $costMap);
         db()->prepare('UPDATE Vypolneniya SET NaznachenieID=?,vypolnil_SotrudnikID=?,data_vypolneniya=?,rezultat=?,oslozhneniya=?,summa=?,status_oplaty=? WHERE VypolnenieID=?')
-            ->execute([$nazId,(int)$_POST['vypolnil_SotrudnikID'],$_POST['data_vypolneniya'],trim($_POST['rezultat']),trim($_POST['oslozhneniya']),$sum,trim($_POST['status_oplaty']),(int)$_POST['id']]);
+            ->execute([$nazId,(int)$_POST['vypolnil_SotrudnikID'],$_POST['data_vypolneniya'],trim($_POST['rezultat']),trim($_POST['oslozhneniya']),$sum,'Оплачено',(int)$_POST['id']]);
         set_flash('success','Выполнение обновлено. Сумма синхронизирована с базовой стоимостью процедуры.');redirect('index.php?page=executions');
     }
     if($a==='delete'){
@@ -63,9 +65,7 @@ require_once __DIR__ . '/../layout.php';
         <label>Результат<textarea name="rezultat"></textarea></label>
         <label>Осложнения<textarea name="oslozhneniya"></textarea></label>
         <label>Сумма (авто из процедуры)<input type="number" step="0.01" id="addSummaPreview" readonly></label>
-        <label>Статус оплаты
-            <select name="status_oplaty"><option value="Не оплачено">Не оплачено</option><option value="Частично">Частично</option><option value="Оплачено">Оплачено</option></select>
-        </label>
+        <label>Статус оплаты<input value="Оплачено" readonly></label>
         <button class="btn">Добавить</button>
     </form>
 </div>
@@ -80,7 +80,7 @@ require_once __DIR__ . '/../layout.php';
     <label>Результат<textarea name="rezultat"><?= h($r['rezultat']) ?></textarea></label>
     <label>Осложнения<textarea name="oslozhneniya"><?= h($r['oslozhneniya']) ?></textarea></label>
     <label>Сумма (авто из процедуры)<input type="number" step="0.01" value="<?= h($r['summa']) ?>" class="editSummaPreview" readonly></label>
-    <label>Статус оплаты<input name="status_oplaty" value="<?= h($r['status_oplaty']) ?>"></label>
+    <label>Статус оплаты<input value="Оплачено" readonly></label>
     <button class="btn">Сохранить</button></form>
     <form method="post"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $r['VypolnenieID'] ?>"><button class="btn danger">Удалить</button></form>
     </td></tr><?php endforeach;?></table></div>

@@ -86,8 +86,21 @@ require_once __DIR__ . '/../layout.php';
     <label>Сотрудник<select name="naznachil_SotrudnikID"><option value="">— не указано —</option><?php foreach($sotr as $s):?><option value="<?= $s['SotrudnikID'] ?>" <?= (string)$s['SotrudnikID']===(string)$r['naznachil_SotrudnikID']?'selected':'' ?>><?= h(trim($s['fio'])) ?></option><?php endforeach;?></select></label>
     <label>Дата назначения<input type="date" name="data_naznacheniya" value="<?= h($r['data_naznacheniya']) ?>"></label>
     <label>Плановая дата<input type="date" name="plan_data" value="<?= h($r['plan_data']) ?>"></label>
-    <label>Приоритет<input name="prioritet" value="<?= h($r['prioritet']) ?>"></label>
-    <label>Статус<input name="naz_status" value="<?= h($r['naz_status']) ?>"></label>
+    <label>Приоритет
+        <select name="prioritet">
+            <option value="Обычный" <?= $r['prioritet']==='Обычный'?'selected':'' ?>>Обычный</option>
+            <option value="Высокий" <?= $r['prioritet']==='Высокий'?'selected':'' ?>>Высокий</option>
+            <option value="Срочно" <?= $r['prioritet']==='Срочно'?'selected':'' ?>>Срочно</option>
+        </select>
+    </label>
+    <label>Статус
+        <select name="naz_status">
+            <option value="Назначено" <?= $r['naz_status']==='Назначено'?'selected':'' ?>>Назначено</option>
+            <option value="В работе" <?= $r['naz_status']==='В работе'?'selected':'' ?>>В работе</option>
+            <option value="Выполнено" <?= $r['naz_status']==='Выполнено'?'selected':'' ?>>Выполнено</option>
+            <option value="Отменено" <?= $r['naz_status']==='Отменено'?'selected':'' ?>>Отменено</option>
+        </select>
+    </label>
     <label>Примечание<textarea name="primechanie"><?= h($r['primechanie']) ?></textarea></label>
     <button class="btn">Сохранить</button></form>
     <form method="post"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $r['NaznachenieID'] ?>"><button class="btn danger">Удалить</button></form>

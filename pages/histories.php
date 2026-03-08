@@ -38,6 +38,13 @@ $patients = db()->query("SELECT PacientID, CONCAT(last_name,' ',first_name,' ',C
 $pmap = [];
 foreach ($patients as $p) { $pmap[$p['PacientID']] = trim($p['fio']); }
 
+$nextHistoryNumber = 'ИБ-' . date('Y') . '-' . str_pad(
+    (string)(((int)db()->query('SELECT COALESCE(MAX(IstoriyaID),0) FROM IstoriiBolezni')->fetchColumn()) + 1),
+    4,
+    '0',
+    STR_PAD_LEFT
+);
+
 $q = trim($_GET['q'] ?? '');
 $sql = 'SELECT * FROM IstoriiBolezni';
 $params = [];
@@ -74,7 +81,7 @@ require_once __DIR__ . '/../layout.php';
         <label>Пациент
             <select name="PacientID" required><?php foreach($patients as $p):?><option value="<?= $p['PacientID'] ?>"><?= h(trim($p['fio'])) ?></option><?php endforeach;?></select>
         </label>
-        <label>Номер истории<input name="nomer_istorii" required placeholder="ИБ-2026-0001"></label>
+        <label>Номер истории<input name="nomer_istorii" value="<?= h($nextHistoryNumber) ?>" required placeholder="ИБ-2026-0001"></label>
         <label>Дата открытия<input type="date" name="data_otkrytiya" required></label>
         <label>Дата закрытия<input type="date" name="data_zakrytiya"></label>
         <label>Статус
@@ -94,7 +101,13 @@ require_once __DIR__ . '/../layout.php';
     <label>Номер<input name="nomer_istorii" value="<?= h($r['nomer_istorii']) ?>" placeholder="ИБ-2026-0001"></label>
     <label>Дата открытия<input type="date" name="data_otkrytiya" value="<?= h($r['data_otkrytiya']) ?>"></label>
     <label>Дата закрытия<input type="date" name="data_zakrytiya" value="<?= h($r['data_zakrytiya']) ?>"></label>
-    <label>Статус<input name="ist_status" value="<?= h($r['ist_status']) ?>"></label>
+    <label>Статус
+        <select name="ist_status">
+            <option value="Открыта" <?= $r['ist_status']==='Открыта'?'selected':'' ?>>Открыта</option>
+            <option value="Закрыта" <?= $r['ist_status']==='Закрыта'?'selected':'' ?>>Закрыта</option>
+            <option value="На лечении" <?= $r['ist_status']==='На лечении'?'selected':'' ?>>На лечении</option>
+        </select>
+    </label>
     <label>Примечание<textarea name="primechanie"><?= h($r['primechanie']) ?></textarea></label>
     <button class="btn">Сохранить</button></form>
     <form method="post"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $r['IstoriyaID'] ?>"><button class="btn danger">Удалить</button></form>
