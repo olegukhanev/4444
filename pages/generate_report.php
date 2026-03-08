@@ -107,8 +107,7 @@ if ($type === 'patient_certificate') {
     $diagRows = $stDiag->fetchAll(PDO::FETCH_ASSOC);
 
     $stProc = db()->prepare(
-        'SELECT v.data_vypolneniya, p.kod_procedury, p.imya procedure_name, v.rezultat,
-                COALESCE(v.summa,0) summa
+        'SELECT v.data_vypolneniya, p.kod_procedury, p.imya procedure_name, v.rezultat
          FROM Vypolneniya v
          JOIN Naznacheniya n ON n.NaznachenieID=v.NaznachenieID
          JOIN SprProcedur p ON p.ProceduraID=n.ProceduraID
@@ -128,58 +127,64 @@ if ($type === 'patient_certificate') {
         $mainText = $first['mkb_code'] . ' ' . $first['imya'];
     }
 
+    $diagText = '';
+    if (!empty($diagRows)) {
+        $parts = [];
+        foreach ($diagRows as $r) {
+            $parts[] = ($r['mkb_code'] . ' ' . $r['imya'] . ' (от ' . $r['data_postanovki'] . ')');
+        }
+        $diagText = implode('; ', $parts) . '.';
+    } else {
+        $diagText = 'данные о диагнозах в истории отсутствуют.';
+    }
+
+    $procText = '';
+    if (!empty($procRows)) {
+        $parts = [];
+        foreach ($procRows as $r) {
+            $item = $r['data_vypolneniya'] . ' — [' . $r['kod_procedury'] . '] ' . $r['procedure_name'];
+            if (!empty($r['rezultat'])) {
+                $item .= ' (результат: ' . $r['rezultat'] . ')';
+            }
+            $parts[] = $item;
+        }
+        $procText = implode('; ', $parts) . '.';
+    } else {
+        $procText = 'выполненные процедуры по данной истории не зарегистрированы.';
+    }
+
     $filename = "patient_certificate_{$historyId}_{$now}.doc";
 
     $html = '<html><head><meta charset="utf-8"><style>'
-        . 'body{font-family:"Times New Roman",serif;color:#111;font-size:14px;line-height:1.4;padding:20px;}'
-        . 'h1{font-size:20px;text-align:center;margin:0 0 6px 0;}'
-        . '.doc-no{text-align:center;margin-bottom:16px;}'
-        . '.section{margin-bottom:12px;}'
-        . 'table{border-collapse:collapse;width:100%;margin-top:8px;}'
-        . 'th,td{border:1px solid #444;padding:6px;vertical-align:top;}'
-        . 'th{background:#f5f5f5;}'
-        . '.sign{margin-top:26px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;}'
-        . '.line{border-bottom:1px solid #000;display:inline-block;min-width:220px;height:18px;}'
-        . '.stamp{margin-top:20px;border:1px dashed #666;height:100px;display:flex;align-items:center;justify-content:center;color:#666;}'
+        . 'body{font-family:"Times New Roman",serif;color:#111;font-size:14px;line-height:1.5;padding:30px;}'
+        . 'h1{font-size:20px;text-align:center;margin:0 0 8px 0;}'
+        . '.doc-no{text-align:center;margin-bottom:20px;}'
+        . '.paragraph{text-indent:36px;margin:0 0 10px 0;text-align:justify;}'
+        . '.sign{margin-top:36px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;}'
+        . '.line{border-bottom:1px solid #000;display:inline-block;min-width:230px;height:18px;}'
+        . '.stamp{margin-top:24px;border:1px dashed #666;height:110px;display:flex;align-items:center;justify-content:center;color:#666;}'
         . '</style></head><body>';
 
+    $docNumber = 'СП-' . date('Y') . '-' . str_pad((string)$historyId, 4, '0', STR_PAD_LEFT);
+
     $html .= '<h1>СПРАВКА О ПРОХОЖДЕНИИ ЛЕЧЕНИЯ</h1>';
-    $html .= '<div class="doc-no">№ ' . h('СП-' . date('Y') . '-' . str_pad((string)$historyId, 4, '0', STR_PAD_LEFT))
-        . ' от ' . date('d.m.Y') . '</div>';
+    $html .= '<div class="doc-no">№ ' . h($docNumber) . ' от ' . date('d.m.Y') . '</div>';
 
-    $html .= '<div class="section">'
-        . 'Выдана пациенту: <strong>' . h($history['fio']) . '</strong><br>'
-        . 'Дата рождения: ' . h($history['birth_date'] ?: '—') . '<br>'
-        . 'История болезни: <strong>' . h($history['nomer_istorii']) . '</strong> (ID ' . h((string)$history['IstoriyaID']) . ')<br>'
-        . 'Период лечения: ' . h($history['data_otkrytiya']) . ' — ' . h($history['data_zakrytiya'] ?: 'по настоящее время') . '<br>'
-        . 'Статус истории: ' . h($history['ist_status'])
-        . '</div>';
+    $html .= '<p class="paragraph">Настоящая справка выдана пациенту <strong>' . h($history['fio']) . '</strong>, '
+        . 'дата рождения: ' . h($history['birth_date'] ?: 'не указана')
+        . ', о том, что он(она) проходил(а) лечение в медицинской организации по истории болезни '
+        . '<strong>' . h($history['nomer_istorii']) . '</strong> (ID ' . h((string)$history['IstoriyaID']) . ') '
+        . 'в период с ' . h($history['data_otkrytiya']) . ' по ' . h($history['data_zakrytiya'] ?: 'настоящее время') . '.</p>';
 
-    $html .= '<div class="section">Основной диагноз: <strong>' . h($mainText) . '</strong></div>';
+    $html .= '<p class="paragraph">Текущий статус истории болезни: <strong>' . h($history['ist_status']) . '</strong>. '
+        . 'Основной диагноз: <strong>' . h($mainText) . '</strong>.</p>';
 
-    $html .= '<div class="section"><strong>Диагнозы по истории болезни:</strong><table>'
-        . '<tr><th>Дата</th><th>Код МКБ</th><th>Наименование</th><th>Основной диагноз</th></tr>';
-    if (empty($diagRows)) {
-        $html .= '<tr><td colspan="4">Нет данных</td></tr>';
-    } else {
-        foreach ($diagRows as $r) {
-            $html .= '<tr><td>' . h($r['data_postanovki']) . '</td><td>' . h($r['mkb_code']) . '</td><td>' . h($r['imya']) . '</td><td>' . h(($r['is_osnovnoy'] ?? 'No') === 'Yes' ? 'Да' : 'Нет') . '</td></tr>';
-        }
-    }
-    $html .= '</table></div>';
+    $html .= '<p class="paragraph">Диагнозы, указанные в истории болезни: ' . h($diagText) . '</p>';
 
-    $html .= '<div class="section"><strong>Выполненные процедуры:</strong><table>'
-        . '<tr><th>Дата</th><th>Код</th><th>Процедура</th><th>Результат</th><th>Сумма</th></tr>';
-    if (empty($procRows)) {
-        $html .= '<tr><td colspan="5">Нет данных</td></tr>';
-    } else {
-        foreach ($procRows as $r) {
-            $html .= '<tr><td>' . h($r['data_vypolneniya']) . '</td><td>' . h($r['kod_procedury']) . '</td><td>' . h($r['procedure_name']) . '</td><td>' . h($r['rezultat']) . '</td><td>' . h(number_format((float)$r['summa'], 2, '.', '')) . '</td></tr>';
-        }
-    }
-    $html .= '</table></div>';
+    $html .= '<p class="paragraph">Сведения о выполненных процедурах: ' . h($procText) . '</p>';
 
-    $html .= '<div class="section">Справка выдана по месту требования.</div>';
+    $html .= '<p class="paragraph">Справка выдана для предоставления по месту требования.</p>';
+
     $html .= '<div class="sign"><div>Лечащий врач: <span class="line"></span></div><div>Подпись: <span class="line"></span></div></div>';
     $html .= '<div class="stamp">Место для печати медицинской организации</div>';
     $html .= '</body></html>';

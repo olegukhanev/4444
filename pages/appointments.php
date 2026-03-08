@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../auth.php';
 require_user_role();
 
+db()->exec("UPDATE Naznacheniya SET naz_status='Назначено' WHERE naz_status IS NULL OR naz_status <> 'Назначено'");
+
 $hist = db()->query('SELECT h.IstoriyaID, h.nomer_istorii, h.ist_status, CONCAT(p.last_name, " ", p.first_name, " ", COALESCE(p.middle_name, "")) fio FROM IstoriiBolezni h JOIN Pacienty p ON p.PacientID=h.PacientID ORDER BY h.IstoriyaID DESC')->fetchAll(PDO::FETCH_ASSOC);
 $proc = db()->query('SELECT ProceduraID, kod_procedury, imya FROM SprProcedur WHERE active="Yes" ORDER BY imya')->fetchAll(PDO::FETCH_ASSOC);
 $sotr = db()->query('SELECT SotrudnikID, CONCAT(last_name, " ", first_name, " ", COALESCE(middle_name, "")) fio FROM Sotrudniki WHERE active="Yes" ORDER BY last_name, first_name')->fetchAll(PDO::FETCH_ASSOC);
@@ -10,12 +12,12 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     $a=$_POST['action']??'';
     if($a==='add'){
         db()->prepare('INSERT INTO Naznacheniya(IstoriyaID,ProceduraID,naznachil_SotrudnikID,data_naznacheniya,plan_data,prioritet,naz_status,primechanie) VALUES(?,?,?,?,?,?,?,?)')
-            ->execute([(int)$_POST['IstoriyaID'],(int)$_POST['ProceduraID'], $_POST['naznachil_SotrudnikID'] !== '' ? (int)$_POST['naznachil_SotrudnikID'] : null, $_POST['data_naznacheniya'], $_POST['plan_data'] ?: null, trim($_POST['prioritet']), trim($_POST['naz_status']), trim($_POST['primechanie'])]);
+            ->execute([(int)$_POST['IstoriyaID'],(int)$_POST['ProceduraID'], $_POST['naznachil_SotrudnikID'] !== '' ? (int)$_POST['naznachil_SotrudnikID'] : null, $_POST['data_naznacheniya'], $_POST['plan_data'] ?: null, trim($_POST['prioritet']), 'Назначено', trim($_POST['primechanie'])]);
         set_flash('success','Назначение добавлено.');redirect('index.php?page=appointments');
     }
     if($a==='edit'){
         db()->prepare('UPDATE Naznacheniya SET IstoriyaID=?,ProceduraID=?,naznachil_SotrudnikID=?,data_naznacheniya=?,plan_data=?,prioritet=?,naz_status=?,primechanie=? WHERE NaznachenieID=?')
-            ->execute([(int)$_POST['IstoriyaID'],(int)$_POST['ProceduraID'], $_POST['naznachil_SotrudnikID'] !== '' ? (int)$_POST['naznachil_SotrudnikID'] : null, $_POST['data_naznacheniya'], $_POST['plan_data'] ?: null, trim($_POST['prioritet']), trim($_POST['naz_status']), trim($_POST['primechanie']), (int)$_POST['id']]);
+            ->execute([(int)$_POST['IstoriyaID'],(int)$_POST['ProceduraID'], $_POST['naznachil_SotrudnikID'] !== '' ? (int)$_POST['naznachil_SotrudnikID'] : null, $_POST['data_naznacheniya'], $_POST['plan_data'] ?: null, trim($_POST['prioritet']), 'Назначено', trim($_POST['primechanie']), (int)$_POST['id']]);
         set_flash('success','Назначение обновлено.');redirect('index.php?page=appointments');
     }
     if($a==='delete'){
@@ -69,9 +71,7 @@ require_once __DIR__ . '/../layout.php';
         <label>Приоритет
             <select name="prioritet"><option value="Обычный">Обычный</option><option value="Высокий">Высокий</option><option value="Срочно">Срочно</option></select>
         </label>
-        <label>Статус
-            <select name="naz_status"><option value="Назначено">Назначено</option><option value="В работе">В работе</option><option value="Выполнено">Выполнено</option><option value="Отменено">Отменено</option></select>
-        </label>
+        <label>Статус<input value="Назначено" readonly></label>
         <label>Примечание<textarea name="primechanie"></textarea></label>
         <button class="btn">Добавить</button>
     </form>
@@ -93,14 +93,7 @@ require_once __DIR__ . '/../layout.php';
             <option value="Срочно" <?= $r['prioritet']==='Срочно'?'selected':'' ?>>Срочно</option>
         </select>
     </label>
-    <label>Статус
-        <select name="naz_status">
-            <option value="Назначено" <?= $r['naz_status']==='Назначено'?'selected':'' ?>>Назначено</option>
-            <option value="В работе" <?= $r['naz_status']==='В работе'?'selected':'' ?>>В работе</option>
-            <option value="Выполнено" <?= $r['naz_status']==='Выполнено'?'selected':'' ?>>Выполнено</option>
-            <option value="Отменено" <?= $r['naz_status']==='Отменено'?'selected':'' ?>>Отменено</option>
-        </select>
-    </label>
+    <label>Статус<input value="Назначено" readonly></label>
     <label>Примечание<textarea name="primechanie"><?= h($r['primechanie']) ?></textarea></label>
     <button class="btn">Сохранить</button></form>
     <form method="post"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $r['NaznachenieID'] ?>"><button class="btn danger">Удалить</button></form>

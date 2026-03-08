@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../auth.php';
 require_user_role();
 
+db()->exec("UPDATE IstoriiBolezni SET ist_status='Открыта' WHERE ist_status IS NULL OR ist_status NOT IN ('Открыта','Закрыта')");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a = $_POST['action'] ?? '';
     if ($a === 'add') {
@@ -85,7 +87,7 @@ require_once __DIR__ . '/../layout.php';
         <label>Дата открытия<input type="date" name="data_otkrytiya" required></label>
         <label>Дата закрытия<input type="date" name="data_zakrytiya"></label>
         <label>Статус
-            <select name="ist_status"><option value="Открыта">Открыта</option><option value="Закрыта">Закрыта</option><option value="На лечении">На лечении</option></select>
+            <select name="ist_status"><option value="Открыта">Открыта</option><option value="Закрыта">Закрыта</option></select>
         </label>
         <label>Примечание<textarea name="primechanie"></textarea></label>
         <button class="btn">Добавить</button>
@@ -105,7 +107,6 @@ require_once __DIR__ . '/../layout.php';
         <select name="ist_status">
             <option value="Открыта" <?= $r['ist_status']==='Открыта'?'selected':'' ?>>Открыта</option>
             <option value="Закрыта" <?= $r['ist_status']==='Закрыта'?'selected':'' ?>>Закрыта</option>
-            <option value="На лечении" <?= $r['ist_status']==='На лечении'?'selected':'' ?>>На лечении</option>
         </select>
     </label>
     <label>Примечание<textarea name="primechanie"><?= h($r['primechanie']) ?></textarea></label>
