@@ -9,6 +9,10 @@ function is_user_role(): bool { return is_logged_in() && (user()['role_name'] ??
 
 function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 
+function yes_no_label(?string $value): string {
+    return $value === 'Yes' ? 'Да' : 'Нет';
+}
+
 function set_flash(string $type, string $message): void {
     $_SESSION['flash'] = ['type' => $type, 'message' => $message];
 }

@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../auth.php';
 require_user_role();
 
+db()->exec("UPDATE IstoriiBolezni SET ist_status='Открыта' WHERE ist_status IS NULL OR ist_status NOT IN ('Открыта','Закрыта')");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a = $_POST['action'] ?? '';
     if ($a === 'add') {
@@ -37,6 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $patients = db()->query("SELECT PacientID, CONCAT(last_name,' ',first_name,' ',COALESCE(middle_name,'')) fio FROM Pacienty ORDER BY last_name, first_name")->fetchAll(PDO::FETCH_ASSOC);
 $pmap = [];
 foreach ($patients as $p) { $pmap[$p['PacientID']] = trim($p['fio']); }
+
+$nextHistoryNumber = 'ИБ-' . date('Y') . '-' . str_pad(
+    (string)(((int)db()->query('SELECT COALESCE(MAX(IstoriyaID),0) FROM IstoriiBolezni')->fetchColumn()) + 1),
+    4,
+    '0',
+    STR_PAD_LEFT
+);
 
 $q = trim($_GET['q'] ?? '');
 $sql = 'SELECT * FROM IstoriiBolezni';
@@ -74,11 +83,11 @@ require_once __DIR__ . '/../layout.php';
         <label>Пациент
             <select name="PacientID" required><?php foreach($patients as $p):?><option value="<?= $p['PacientID'] ?>"><?= h(trim($p['fio'])) ?></option><?php endforeach;?></select>
         </label>
-        <label>Номер истории<input name="nomer_istorii" required></label>
+        <label>Номер истории<input name="nomer_istorii" value="<?= h($nextHistoryNumber) ?>" required placeholder="ИБ-2026-0001"></label>
         <label>Дата открытия<input type="date" name="data_otkrytiya" required></label>
         <label>Дата закрытия<input type="date" name="data_zakrytiya"></label>
         <label>Статус
-            <select name="ist_status"><option value="Открыта">Открыта</option><option value="Закрыта">Закрыта</option><option value="На лечении">На лечении</option></select>
+            <select name="ist_status"><option value="Открыта">Открыта</option><option value="Закрыта">Закрыта</option></select>
         </label>
         <label>Примечание<textarea name="primechanie"></textarea></label>
         <button class="btn">Добавить</button>
@@ -91,10 +100,15 @@ require_once __DIR__ . '/../layout.php';
     <?php foreach($rows as $r):?><tr><td><?= $r['IstoriyaID'] ?></td><td><?= h($pmap[$r['PacientID']] ?? '') ?></td><td><?= h($r['nomer_istorii']) ?></td><td><?= h($r['data_otkrytiya']) ?> — <?= h($r['data_zakrytiya']) ?></td><td><?= h($r['ist_status']) ?></td><td>
     <form method="post" class="form-grid"><input type="hidden" name="action" value="edit"><input type="hidden" name="id" value="<?= $r['IstoriyaID'] ?>">
     <label>Пациент<select name="PacientID"><?php foreach($patients as $p):?><option value="<?= $p['PacientID'] ?>" <?= $p['PacientID']==$r['PacientID']?'selected':'' ?>><?= h(trim($p['fio'])) ?></option><?php endforeach;?></select></label>
-    <label>Номер<input name="nomer_istorii" value="<?= h($r['nomer_istorii']) ?>"></label>
+    <label>Номер<input name="nomer_istorii" value="<?= h($r['nomer_istorii']) ?>" placeholder="ИБ-2026-0001"></label>
     <label>Дата открытия<input type="date" name="data_otkrytiya" value="<?= h($r['data_otkrytiya']) ?>"></label>
     <label>Дата закрытия<input type="date" name="data_zakrytiya" value="<?= h($r['data_zakrytiya']) ?>"></label>
-    <label>Статус<input name="ist_status" value="<?= h($r['ist_status']) ?>"></label>
+    <label>Статус
+        <select name="ist_status">
+            <option value="Открыта" <?= $r['ist_status']==='Открыта'?'selected':'' ?>>Открыта</option>
+            <option value="Закрыта" <?= $r['ist_status']==='Закрыта'?'selected':'' ?>>Закрыта</option>
+        </select>
+    </label>
     <label>Примечание<textarea name="primechanie"><?= h($r['primechanie']) ?></textarea></label>
     <button class="btn">Сохранить</button></form>
     <form method="post"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= $r['IstoriyaID'] ?>"><button class="btn danger">Удалить</button></form>

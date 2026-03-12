@@ -81,12 +81,12 @@ require_once __DIR__ . '/../layout.php';
     <form method="post" class="form-grid">
         <input type="hidden" name="action" value="add">
         <label>Название отделения <input name="imya" required></label>
-        <label>Телефон <input name="phone"></label>
-        <label>Кабинет <input name="kabinet"></label>
-        <label>Active
+        <label>Телефон <input name="phone" placeholder="+7 (___) ___-__-__" pattern="[0-9+()\-\s]{10,20}" title="Например: +7 (987) 123-45-67"></label>
+        <label>Кабинет <input name="kabinet" placeholder="Каб. 12"></label>
+        <label>Доступно для выбора
             <select name="active">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
+                <option value="Yes">Да</option>
+                <option value="No">Нет</option>
             </select>
         </label>
         <button class="btn">Добавить</button>
@@ -97,25 +97,25 @@ require_once __DIR__ . '/../layout.php';
     <h3>Список отделений</h3>
     <div class="table-wrap">
         <table>
-            <tr><th>ID</th><th>Название</th><th>Телефон</th><th>Кабинет</th><th>Active</th><th>Действия</th></tr>
+            <tr><th>ID</th><th>Название</th><th>Телефон</th><th>Кабинет</th><th>Доступно</th><th>Действия</th></tr>
             <?php foreach ($rows as $r): ?>
                 <tr>
                     <td><?= (int)$r['OtdelenieID'] ?></td>
                     <td><?= h($r['imya']) ?></td>
                     <td><?= h($r['phone']) ?></td>
                     <td><?= h($r['kabinet']) ?></td>
-                    <td><?= h($r['active']) ?></td>
+                    <td><?= h(yes_no_label($r['active'])) ?></td>
                     <td>
                         <form method="post" class="form-grid">
                             <input type="hidden" name="action" value="edit">
                             <input type="hidden" name="id" value="<?= (int)$r['OtdelenieID'] ?>">
                             <label>Название <input name="imya" value="<?= h($r['imya']) ?>" required></label>
-                            <label>Телефон <input name="phone" value="<?= h($r['phone']) ?>"></label>
-                            <label>Кабинет <input name="kabinet" value="<?= h($r['kabinet']) ?>"></label>
-                            <label>Active
+                            <label>Телефон <input name="phone" value="<?= h($r['phone']) ?>" placeholder="+7 (___) ___-__-__" pattern="[0-9+()\-\s]{10,20}" title="Например: +7 (987) 123-45-67"></label>
+                            <label>Кабинет <input name="kabinet" value="<?= h($r['kabinet']) ?>" placeholder="Каб. 12"></label>
+                            <label>Доступно для выбора
                                 <select name="active">
-                                    <option value="Yes" <?= $r['active'] === 'Yes' ? 'selected' : '' ?>>Yes</option>
-                                    <option value="No" <?= $r['active'] === 'No' ? 'selected' : '' ?>>No</option>
+                                    <option value="Yes" <?= $r['active'] === 'Yes' ? 'selected' : '' ?>>Да</option>
+                                    <option value="No" <?= $r['active'] === 'No' ? 'selected' : '' ?>>Нет</option>
                                 </select>
                             </label>
                             <button class="btn">Сохранить</button>

@@ -78,9 +78,9 @@ require_once __DIR__ . '/../layout.php';
                 <option value="Женский">Женский</option>
             </select>
         </label>
-        <label>Телефон<input name="phone"></label>
+        <label>Телефон<input name="phone" placeholder="+7 (___) ___-__-__" pattern="[0-9+()\-\s]{10,20}" title="Например: +7 (987) 123-45-67"></label>
         <label>Адрес<input name="adres"></label>
-        <label>Номер полиса<input name="polis_number"></label>
+        <label>Номер полиса<input name="polis_number" placeholder="0000 0000 0000 0000" pattern="[0-9\s-]{10,30}" title="Только цифры, пробелы и дефис"></label>
         <button class="btn">Добавить</button>
     </form>
 </div>
@@ -112,9 +112,9 @@ require_once __DIR__ . '/../layout.php';
                                     <option value="Женский" <?= $r['pol'] === 'Женский' ? 'selected' : '' ?>>Женский</option>
                                 </select>
                             </label>
-                            <label>Телефон<input name="phone" value="<?= h($r['phone']) ?>"></label>
+                            <label>Телефон<input name="phone" value="<?= h($r['phone']) ?>" placeholder="+7 (___) ___-__-__" pattern="[0-9+()\-\s]{10,20}" title="Например: +7 (987) 123-45-67"></label>
                             <label>Адрес<input name="adres" value="<?= h($r['adres']) ?>"></label>
-                            <label>Номер полиса<input name="polis_number" value="<?= h($r['polis_number']) ?>"></label>
+                            <label>Номер полиса<input name="polis_number" value="<?= h($r['polis_number']) ?>" placeholder="0000 0000 0000 0000" pattern="[0-9\s-]{10,30}" title="Только цифры, пробелы и дефис"></label>
                             <button class="btn">Сохранить</button>
                         </form>
                         <form method="post" class="form-stack">

@@ -112,12 +112,12 @@ require_once __DIR__ . '/../layout.php';
             <label>Имя <input name="first_name" required></label>
             <label>Отчество <input name="middle_name"></label>
             <label>Должность <input name="dolzhnost" required></label>
-            <label>Телефон <input name="phone"></label>
+            <label>Телефон <input name="phone" placeholder="+7 (___) ___-__-__" pattern="[0-9+()\-\s]{10,20}" title="Например: +7 (987) 123-45-67"></label>
             <label>Дата найма <input type="date" name="date_naima"></label>
-            <label>Active
+            <label>Доступен к выбору в системе
                 <select name="active">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
+                    <option value="Yes">Да</option>
+                    <option value="No">Нет</option>
                 </select>
             </label>
             <button class="btn">Добавить</button>
@@ -129,7 +129,7 @@ require_once __DIR__ . '/../layout.php';
     <h3>Список сотрудников</h3>
     <div class="table-wrap">
         <table>
-            <tr><th>ID</th><th>ФИО</th><th>Отделение</th><th>Должность</th><th>Телефон</th><th>Дата найма</th><th>Active</th><th>Действия</th></tr>
+            <tr><th>ID</th><th>ФИО</th><th>Отделение</th><th>Должность</th><th>Телефон</th><th>Дата найма</th><th>Доступен</th><th>Действия</th></tr>
             <?php foreach ($rows as $r): ?>
                 <tr>
                     <td><?= (int)$r['SotrudnikID'] ?></td>
@@ -138,7 +138,7 @@ require_once __DIR__ . '/../layout.php';
                     <td><?= h($r['dolzhnost']) ?></td>
                     <td><?= h($r['phone']) ?></td>
                     <td><?= h($r['date_naima']) ?></td>
-                    <td><?= h($r['active']) ?></td>
+                    <td><?= h(yes_no_label($r['active'])) ?></td>
                     <td>
                         <form method="post" class="form-grid">
                             <input type="hidden" name="action" value="edit">
@@ -154,12 +154,12 @@ require_once __DIR__ . '/../layout.php';
                             <label>Имя <input name="first_name" value="<?= h($r['first_name']) ?>" required></label>
                             <label>Отчество <input name="middle_name" value="<?= h($r['middle_name']) ?>"></label>
                             <label>Должность <input name="dolzhnost" value="<?= h($r['dolzhnost']) ?>" required></label>
-                            <label>Телефон <input name="phone" value="<?= h($r['phone']) ?>"></label>
+                            <label>Телефон <input name="phone" value="<?= h($r['phone']) ?>" placeholder="+7 (___) ___-__-__" pattern="[0-9+()\-\s]{10,20}" title="Например: +7 (987) 123-45-67"></label>
                             <label>Дата найма <input type="date" name="date_naima" value="<?= h($r['date_naima']) ?>"></label>
-                            <label>Active
+                            <label>Доступен к выбору в системе
                                 <select name="active">
-                                    <option value="Yes" <?= $r['active'] === 'Yes' ? 'selected' : '' ?>>Yes</option>
-                                    <option value="No" <?= $r['active'] === 'No' ? 'selected' : '' ?>>No</option>
+                                    <option value="Yes" <?= $r['active'] === 'Yes' ? 'selected' : '' ?>>Да</option>
+                                    <option value="No" <?= $r['active'] === 'No' ? 'selected' : '' ?>>Нет</option>
                                 </select>
                             </label>
                             <button class="btn">Сохранить</button>
